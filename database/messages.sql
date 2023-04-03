@@ -1,0 +1,20 @@
+CREATE TABLE conversations (
+    id SERIAL PRIMARY KEY,
+    user1_id INTEGER NOT NULL REFERENCES users(id),
+    user2_id INTEGER NOT NULL REFERENCES users(id),
+  	last_message VARCHAR(255) NOT NULL,
+  	is_read BOOLEAN NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE messages (
+    id SERIAL PRIMARY KEY,
+    conversation_id INTEGER NOT NULL REFERENCES Conversations(id),
+    sender_id INTEGER NOT NULL REFERENCES Users(id),
+    receiver_id INTEGER NOT NULL REFERENCES Users(id),
+    content TEXT NOT NULL,
+    file VARCHAR(255),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
