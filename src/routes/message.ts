@@ -1,5 +1,6 @@
 import { FastifyPluginAsync } from "fastify";
 import { getConversations } from "../controllers/messages/getConversations";
+import { getMessages } from "../controllers/messages/getMessages";
 
 const message: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     // socketio middelware to check if use is authenticated and save user_id from jwt
@@ -33,6 +34,16 @@ const message: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
         { onRequest: [fastify.authenticate] },
         getConversations
     );
+
+    fastify.route({
+        method: "GET",
+        url: "/messaging/conversations/:conversationId",
+        handler: getMessages,
+        onRequest: [fastify.authenticate],
+        schema: {
+            params: { conversationId: { type: "string" } },
+        },
+    });
 };
 
 export default message;
