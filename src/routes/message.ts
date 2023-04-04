@@ -1,4 +1,5 @@
 import { FastifyPluginAsync } from "fastify";
+import { getConversations } from "../controllers/messages/getConversations";
 
 const message: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     // socketio middelware to check if use is authenticated and save user_id from jwt
@@ -11,7 +12,7 @@ const message: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
 
         try {
             const decoded = fastify.jwt.verify<{ userId: string }>(token);
-            fastify.activeUsers.set(socket.id, decoded.userId);
+            fastify.activeUsers.set(decoded.userId, socket.id);
         } catch (error) {
             return next(new Error("Invalid token"));
         }
@@ -21,12 +22,17 @@ const message: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     fastify.io.on("connection", (socket) => {
         socket.on("message", (message) => {
             console.log([...fastify.activeUsers.entries()]);
-            socket.emit("message", "I got a message");
         });
         socket.on("disconnect", () => {
-            fastify.activeUsers.delete(socket.id);
+            fastify.activeUsers.inverse.delete(socket.id);
         });
     });
+
+    fastify.get(
+        "/messaging/conversations",
+        { onRequest: [fastify.authenticate] },
+        getConversations
+    );
 };
 
 export default message;
