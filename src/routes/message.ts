@@ -29,11 +29,12 @@ const message: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
         });
     });
 
-    fastify.get(
-        "/messaging/conversations",
-        { onRequest: [fastify.authenticate] },
-        getConversations
-    );
+    fastify.route({
+        method: "GET",
+        url: "/messaging/conversations",
+        handler: getConversations,
+        onRequest: [fastify.authenticate],
+    });
 
     fastify.route({
         method: "GET",

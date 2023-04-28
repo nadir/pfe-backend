@@ -16,7 +16,7 @@ const login: RouteHandler<{
     );
 
     if (user.rowCount === 0) {
-        return reply.code(400).send({
+        return reply.code(401).send({
             message: "Username or password is incorrect",
         });
     }
@@ -24,7 +24,7 @@ const login: RouteHandler<{
     const valid = await argon2.verify(user.rows[0].password, password);
 
     if (!valid) {
-        return reply.code(400).send({
+        return reply.code(401).send({
             message: "Username or password is incorrect",
         });
     }
