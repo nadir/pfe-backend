@@ -11,6 +11,14 @@ export const SignupBody = Type.Object({
     email: Type.String({ format: "email" }),
     first_name: Type.String(),
     last_name: Type.String(),
+    date_of_birth: Type.String({ format: "date" }),
+    address: Type.String(),
+    phone_number: Type.String(),
+    child_first_name: Type.String(),
+    child_last_name: Type.String(),
+    child_date_of_birth: Type.String({ format: "date" }),
+    child_class: Type.String(),
+    proof_of_enrollment: Type.String(),
 });
 
 export type SignupBody = Static<typeof SignupBody>;
