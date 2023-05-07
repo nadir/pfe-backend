@@ -1,33 +1,33 @@
 import { RouteHandler } from "fastify";
 import { Message } from "../../models/Message";
+import {
+    ListMessageQuerystring,
+    ListMessagesParams,
+} from "../../schemas/messages.schema";
+import { validate } from "uuid";
 
-export const getMessages: RouteHandler<{ Params: { conversationId: string } }> =
-    async function (request, reply) {
-        const { conversationId } = request.params;
+export const getMessages: RouteHandler<{
+    Params: ListMessagesParams;
+    Querystring: ListMessageQuerystring;
+}> = async function (request, reply) {
+    // list all messages between two users
+    const { userId } = request.user;
+    const { userId: recieverId } = request.params;
+    const { page } = request.query;
 
-        // get messages list and join with users table to get first name and last name of sender
-        const messages = await this.pg.query<
-            {
-                author_id: string;
-                first_name: string;
-                last_name: string;
-            } & Message
-        >(
-            "SELECT messages.*, users.user_id AS author_id, users.first_name, users.last_name FROM messages JOIN users ON users.user_id = messages.sender_id WHERE messages.conversation_id = $1 ORDER BY messages.created_at ASC",
-            [conversationId]
-        );
+    const validUserId = validate(recieverId);
+    if (!validUserId) reply.status(400).send({ message: "Invalid recieverId" });
 
-        let response = messages.rows.map((message) => {
-            return {
-                id: message.id,
-                content: message.content,
-                author: {
-                    id: message.author_id,
-                    first_name: message.first_name,
-                    last_name: message.last_name,
-                },
-                created_at: message.created_at,
-            };
-        });
-        return response;
-    };
+    // if (userId === recieverId)
+    //     reply.status(400).send({ message: "Cannot message yourself" });
+
+    const limit = 20;
+    const offset = page ? page * limit : 0;
+
+    const messages = await this.pg.query<Message>({
+        text: `SELECT * from messages WHERE sender_id = $1 AND receiver_id = $2 OR sender_id = $2 AND receiver_id = $1 ORDER BY created_at DESC LIMIT $3 OFFSET $4;`,
+        values: [userId, recieverId, limit, offset],
+    });
+
+    return messages.rows;
+};

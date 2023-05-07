@@ -1,20 +1,30 @@
-CREATE TABLE conversations (
-    id SERIAL PRIMARY KEY,
-    user1_id INTEGER NOT NULL REFERENCES users(id),
-    user2_id INTEGER NOT NULL REFERENCES users(id),
-  	last_message VARCHAR(255) NOT NULL,
-  	is_read BOOLEAN NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+CREATE TABLE
+  public.conversations (
+    id serial NOT NULL,
+    user1_id uuid NOT NULL,
+    user2_id uuid NOT NULL,
+    last_message character varying(255) NOT NULL,
+    created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+
+ALTER TABLE
+  public.conversations
+ADD
+  CONSTRAINT conversations_pkey PRIMARY KEY (id)
 
 
-CREATE TABLE messages (
-    id SERIAL PRIMARY KEY,
-    conversation_id INTEGER NOT NULL REFERENCES Conversations(id),
-    sender_id INTEGER NOT NULL REFERENCES Users(id),
-    receiver_id INTEGER NOT NULL REFERENCES Users(id),
-    content TEXT NOT NULL,
-    file VARCHAR(255),
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+CREATE TABLE
+  public.messages (
+    id serial NOT NULL,
+    conversation_id integer NOT NULL,
+    sender_id uuid NOT NULL,
+    content text NOT NULL,
+    file character varying(255) NULL,
+    created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
+  );
+
+ALTER TABLE
+  public.messages
+ADD
+  CONSTRAINT messages_pkey PRIMARY KEY (id)

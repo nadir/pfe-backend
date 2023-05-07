@@ -1,8 +1,8 @@
 export interface Message {
     id: number;
-    conversation_id: number;
-    sender_id: number;
+    sender_id: string;
+    receiver_id: string;
     content: string;
-    file: string;
+    attachment: string;
     created_at: Date;
 }

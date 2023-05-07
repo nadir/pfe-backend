@@ -1,5 +1,8 @@
 import { FastifyPluginAsync } from "fastify";
 import { checkDetails } from "../../controllers/user/check.controller";
+import { getUserInfo } from "../../controllers/user/getUserInfo";
+import { RegisterFCMTokenBody } from "../../schemas/messages.schema";
+import { registerFCMtoken } from "../../controllers/user/registerFCMtoken";
 
 const example: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     fastify.route({
@@ -20,6 +23,23 @@ const example: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
                     { required: ["phone_number"] },
                 ],
             },
+        },
+    });
+
+    fastify.route({
+        method: "GET",
+        url: "/me",
+        handler: getUserInfo,
+        preHandler: [fastify.authenticate],
+    });
+
+    fastify.route({
+        method: "POST",
+        url: "/firebase/token",
+        handler: registerFCMtoken,
+        preHandler: [fastify.authenticate],
+        schema: {
+            body: RegisterFCMTokenBody,
         },
     });
 };
