@@ -7,6 +7,7 @@ import {
 import { createMessage } from "../../controllers/messages/createMessage";
 import { getMessages } from "../../controllers/messages/getMessages";
 import { listConversations } from "../../controllers/messages/listConversations";
+import { listContacts } from "../../controllers/messages/listContacts";
 
 const message: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     fastify.io.use((socket, next) => {
@@ -55,6 +56,13 @@ const message: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
         method: "GET",
         url: "/conversations",
         handler: listConversations,
+        preHandler: [fastify.authenticate],
+    });
+
+    fastify.route({
+        method: "GET",
+        url: "/contacts",
+        handler: listContacts,
         preHandler: [fastify.authenticate],
     });
 };
