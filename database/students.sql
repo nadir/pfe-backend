@@ -1,0 +1,12 @@
+CREATE TABLE students (
+    id SERIAL PRIMARY KEY,
+    parent_id INTEGER NOT NULL REFERENCES users(id),
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    date_of_birth TIMESTAMP NOT NULL,
+    class VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    proof_of_enrollment VARCHAR(255) NOT NULL,
+    verified BOOLEAN DEFAULT FALSE,    
+) 
