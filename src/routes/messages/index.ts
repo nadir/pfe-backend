@@ -1,6 +1,7 @@
 import { FastifyPluginAsync } from "fastify";
 import {
     CreateMessageBody,
+    DeleteMessageParams,
     ListMessagesParams,
 } from "../../schemas/messages.schema";
 
@@ -8,6 +9,7 @@ import { createMessage } from "../../controllers/messages/createMessage";
 import { getMessages } from "../../controllers/messages/getMessages";
 import { listConversations } from "../../controllers/messages/listConversations";
 import { listContacts } from "../../controllers/messages/listContacts";
+import { deleteMessageById } from "../../controllers/messages/deleteMessageById";
 
 const message: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     fastify.io.use((socket, next) => {
@@ -64,6 +66,16 @@ const message: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
         url: "/contacts",
         handler: listContacts,
         preHandler: [fastify.authenticate],
+    });
+
+    fastify.route({
+        method: "DELETE",
+        url: "/:messageId",
+        preHandler: [fastify.authenticate],
+        schema: {
+            params: DeleteMessageParams,
+        },
+        handler: deleteMessageById,
     });
 };
 
