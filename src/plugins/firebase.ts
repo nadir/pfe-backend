@@ -5,15 +5,15 @@ import { Bucket } from "@google-cloud/storage";
 import fp from "fastify-plugin";
 
 export default fp(async (fastify) => {
-    initializeApp({
+    const app = initializeApp({
         credential: cert(
             JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || "")
         ),
         storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     });
 
-    const bucket = getStorage().bucket();
-    const messaging = getMessaging();
+    const bucket = getStorage(app).bucket();
+    const messaging = getMessaging(app);
 
     fastify.decorate("firebase", {
         bucket,
