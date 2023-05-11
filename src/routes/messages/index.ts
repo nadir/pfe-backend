@@ -19,7 +19,16 @@ const message: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
         }
         try {
             const decoded = fastify.jwt.verify<{ userId: string }>(token);
-            fastify.activeUsers.set(decoded.userId, socket.id);
+
+            if (process.env.NODE_ENV === "production") {
+                fastify.redis.hset(
+                    `user:${decoded.userId}`,
+                    "socketId",
+                    socket.id
+                );
+            } else {
+                fastify.activeUsers.set(decoded.userId, socket.id);
+            }
         } catch (error) {
             return next(new Error("Invalid token"));
         }

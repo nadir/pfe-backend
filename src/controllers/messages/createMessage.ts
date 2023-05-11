@@ -23,8 +23,19 @@ export const createMessage: RouteHandler<{
         [userId]
     );
 
-    const socketId = this.activeUsers.get(receiver_id);
-    const firebaseToken = this.firebaseTokens.get(receiver_id);
+    let socketId;
+    let firebaseToken;
+
+    if (process.env.NODE_ENV === "production") {
+        socketId = await this.redis.hget(`user:${receiver_id}`, "socketId");
+        firebaseToken = await this.redis.hget(
+            `user:${receiver_id}`,
+            "firebaseToken"
+        );
+    } else {
+        socketId = this.activeUsers.get(receiver_id);
+        firebaseToken = this.firebaseTokens.get(receiver_id);
+    }
 
     if (socketId) {
         this.io.emit("message", newMessage.rows[0]);

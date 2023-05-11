@@ -7,5 +7,11 @@ export const registerFCMtoken: RouteHandler<{
     const { userId } = request.user;
     const { token } = request.body;
 
-    this.firebaseTokens.set(userId, token);
+    if (process.env.NODE_ENV === "production") {
+        await this.redis.hset(`user:${userId}`, "firebaseToken", token);
+    } else {
+        this.firebaseTokens.set(userId, token);
+    }
+
+    return { message: "Token registered" };
 };
