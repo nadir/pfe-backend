@@ -21,11 +21,8 @@ const message: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
             const decoded = fastify.jwt.verify<{ userId: string }>(token);
 
             if (process.env.NODE_ENV === "production") {
-                fastify.redis.hset(
-                    `user:${decoded.userId}`,
-                    "socketId",
-                    socket.id
-                );
+                fastify.redis.hset("user_sockets", socket.id, decoded.userId);
+                fastify.redis.sadd(`user:${decoded.userId}:sockets`, socket.id);
             } else {
                 fastify.activeUsers.set(decoded.userId, socket.id);
             }
@@ -38,8 +35,18 @@ const message: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
         socket.on("message", (message) => {
             console.log([...fastify.activeUsers.entries()]);
         });
-        socket.on("disconnect", () => {
-            fastify.activeUsers.inverse.delete(socket.id);
+        socket.on("disconnect", async () => {
+            if (process.env.NODE_ENV === "production") {
+                const userId = await fastify.redis.hget(
+                    "user_sockets",
+                    socket.id
+                );
+                if (!userId) return;
+                fastify.redis.hdel("user_sockets", socket.id);
+                fastify.redis.srem(`user:${userId}:sockets`, socket.id);
+            } else {
+                fastify.activeUsers.inverse.delete(socket.id);
+            }
         });
     });
 
