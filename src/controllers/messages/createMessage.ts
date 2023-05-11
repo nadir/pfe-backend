@@ -18,6 +18,11 @@ export const createMessage: RouteHandler<{
         [userId, receiver_id, content]
     );
 
+    const sender = await this.pg.query(
+        `SELECT first_name, last_name FROM users WHERE user_id = $1`,
+        [userId]
+    );
+
     const socketId = this.activeUsers.get(receiver_id);
     const firebaseToken = this.firebaseTokens.get(receiver_id);
 
@@ -34,7 +39,7 @@ export const createMessage: RouteHandler<{
 
             token: firebaseToken,
             data: {
-                link: `pfeapp://account/chat/${newMessage.rows[0].sender_id}?name=${newMessage.rows[0].first_name}%20${newMessage.rows[0].last_name}`,
+                link: `pfeapp://account/chat/${sender.rows[0].sender_id}?name=${sender.rows[0].first_name}%20${newMessage.rows[0].last_name}`,
             },
         });
     }
