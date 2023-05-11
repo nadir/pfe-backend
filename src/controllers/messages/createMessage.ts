@@ -26,7 +26,6 @@ export const createMessage: RouteHandler<{
     }
 
     if (firebaseToken) {
-        console.log("sending firebase message" + firebaseToken);
         this.firebase.messaging.send({
             notification: {
                 title: "New Message",
