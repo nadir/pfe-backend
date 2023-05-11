@@ -39,7 +39,7 @@ export const createMessage: RouteHandler<{
 
             token: firebaseToken,
             data: {
-                link: `pfeapp://account/chat/${sender.rows[0].sender_id}?name=${sender.rows[0].first_name}%20${newMessage.rows[0].last_name}`,
+                link: `pfeapp://account/chat/${sender.rows[0].sender_id}?name=${sender.rows[0].first_name}%20${sender.rows[0].last_name}`,
             },
         });
     }
