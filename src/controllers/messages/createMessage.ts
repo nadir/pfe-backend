@@ -47,17 +47,25 @@ export const createMessage: RouteHandler<{
     }
 
     if (firebaseToken) {
-        this.firebase.messaging.send({
-            notification: {
-                title: "New Message",
-                body: content,
-            },
+        // try to send message and if it doesn't exist remove it from redis
+        try {
+            this.firebase.messaging.send({
+                notification: {
+                    title: "New Message",
+                    body: content,
+                },
 
-            token: firebaseToken,
-            data: {
-                link: `pfeapp://account/chat/${userId}?name=${sender.rows[0].first_name}%20${sender.rows[0].last_name}`,
-            },
-        });
+                token: firebaseToken,
+                data: {
+                    sender: sender.rows[0].first_name,
+                    message_content: content,
+                    link: `pfeapp://account/chat/${userId}?name=${sender.rows[0].first_name}%20${sender.rows[0].last_name}`,
+                },
+            });
+        } catch (error) {
+            // TODO better error handling
+            this.redis.hdel(`user:${receiver_id}`, "firebaseToken");
+        }
     }
 
     return newMessage.rows[0];
