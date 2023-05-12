@@ -48,8 +48,8 @@ export const createMessage: RouteHandler<{
 
     if (firebaseToken) {
         // try to send message and if it doesn't exist remove it from redis
-        try {
-            this.firebase.messaging.send({
+        this.firebase.messaging
+            .send({
                 notification: {
                     title: "New Message",
                     body: content,
@@ -61,12 +61,11 @@ export const createMessage: RouteHandler<{
                     message_content: content,
                     link: `pfeapp://account/chat/${userId}?name=${sender.rows[0].first_name}%20${sender.rows[0].last_name}`,
                 },
+            })
+            .catch((error) => {
+                this.log.error("Error sending message to firebase", error);
+                this.redis.hdel(`user:${receiver_id}`, "firebaseToken");
             });
-        } catch (error) {
-            // TODO better error handling
-            console.log(error);
-            this.redis.hdel(`user:${receiver_id}`, "firebaseToken");
-        }
     }
 
     return newMessage.rows[0];
