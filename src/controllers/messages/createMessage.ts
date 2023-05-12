@@ -56,6 +56,9 @@ export const createMessage: RouteHandler<{
                 },
                 android: {
                     priority: "high",
+                    notification: {
+                        priority: "max",
+                    },
                 },
                 token: firebaseToken,
                 data: {
