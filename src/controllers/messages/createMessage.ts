@@ -64,6 +64,7 @@ export const createMessage: RouteHandler<{
             });
         } catch (error) {
             // TODO better error handling
+            console.log(error);
             this.redis.hdel(`user:${receiver_id}`, "firebaseToken");
         }
     }
