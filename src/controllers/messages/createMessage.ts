@@ -51,10 +51,12 @@ export const createMessage: RouteHandler<{
         this.firebase.messaging
             .send({
                 notification: {
-                    title: "New Message",
+                    title: `${sender.rows[0].first_name} sent you a message`,
                     body: content,
                 },
-
+                android: {
+                    priority: "high",
+                },
                 token: firebaseToken,
                 data: {
                     sender: sender.rows[0].first_name,
