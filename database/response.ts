@@ -1,0 +1,42 @@
+const respone = [
+    {
+        id: 1,
+        title: "Post 1",
+        content: "Content 1",
+        image: "https://picsum.photos/200/300",
+        type: "publication",
+        classId: "1",
+        authorId: "1",
+        createdAt: "2021-08-01T00:00:00.000Z",
+        updatedAt: "2021-08-01T00:00:00.000Z",
+        likesCount: 10,
+        commentsCount: 10,
+        liked: true,
+    },
+    {
+        id: 2,
+        question: "Question 1",
+        closedAt: "2021-08-01T00:00:00.000Z",
+        type: "poll",
+        classId: "1",
+        authorId: "1",
+        createdAt: "2021-08-01T00:00:00.000Z",
+        updatedAt: "2021-08-01T00:00:00.000Z",
+        likesCount: 10,
+        commentsCount: 10,
+        liked: true,
+        options: [
+            {
+                id: 1,
+                option: "Option 1",
+                votesCount: 10,
+            },
+            {
+                id: 2,
+                option: "Option 2",
+                votesCount: 10,
+            },
+        ],
+        votedOptionId: 2,
+    },
+];
