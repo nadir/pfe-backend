@@ -1,6 +1,6 @@
 import { Static, Type } from "@sinclair/typebox";
 
-const FileBody = Type.Object({
+export const FileBody = Type.Object({
     data: Type.String(),
     filename: Type.String(),
     mimetype: Type.String(),
