@@ -48,7 +48,7 @@ export const addResource: RouteHandler<{
     });
 
     await fileUpload.makePublic();
-    const fileUrl = await fileUpload.publicUrl();
+    const fileUrl = fileUpload.publicUrl();
 
     await this.pg.query(
         `INSERT INTO module_resources (module_id, file, filename) VALUES ($1, $2, $3)`,
