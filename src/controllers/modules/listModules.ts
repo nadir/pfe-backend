@@ -1,6 +1,8 @@
 import { RouteHandler } from "fastify";
 
-export const listModules: RouteHandler = async function (request, reply) {
+export const listModules: RouteHandler<{
+    Params: { classId?: string };
+}> = async function (request, reply) {
     const { userId } = request.user;
 
     // get user
@@ -22,10 +24,22 @@ export const listModules: RouteHandler = async function (request, reply) {
             results: modules.rows,
         });
     } else {
-        return reply.code(403).send({
-            statusCode: 403,
-            error: "Forbidden",
-            message: "You must be a teacher to list modules",
+        if (!request.params.classId) {
+            return reply.code(400).send({
+                statusCode: 400,
+                error: "Missing classId",
+            });
+        }
+
+        const modules = await this.pg.query(
+            `
+            SELECT * FROM modules WHERE level = (SELECT level from classes WHERE id = $1)`,
+            [request.params.classId]
+        );
+
+        return reply.code(200).send({
+            statusCode: 200,
+            results: modules.rows,
         });
     }
 };

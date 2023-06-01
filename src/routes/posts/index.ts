@@ -12,6 +12,10 @@ import { createPost } from "../../controllers/posts/createPost";
 import { likePost } from "../../controllers/posts/likePost";
 import { listPosts } from "../../controllers/posts/listPosts";
 import { votePoll } from "../../controllers/posts/votePoll";
+import { deletePost } from "../../controllers/posts/deletePost";
+import { getPostComments } from "../../controllers/posts/postComments";
+import { publishComment } from "../../controllers/posts/publishComment";
+import { deleteComment } from "../../controllers/posts/deleteComment";
 
 const posts: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     fastify.register(multipart, {
@@ -63,6 +67,61 @@ const posts: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
         schema: {
             params: VotePollQueryParams,
             body: VotePollBody,
+        },
+    });
+
+    fastify.route({
+        method: "DELETE",
+        url: "/:postId",
+        handler: deletePost,
+        preHandler: [fastify.authenticate],
+        schema: {
+            params: {
+                postId: { type: "string" },
+            },
+        },
+    });
+
+    fastify.route({
+        method: "GET",
+        url: "/:postId/comments",
+        handler: getPostComments,
+        preHandler: [fastify.authenticate],
+        schema: {
+            params: {
+                postId: { type: "string" },
+            },
+        },
+    });
+
+    fastify.route({
+        method: "POST",
+        url: "/:postId/comments",
+        handler: publishComment,
+        preHandler: [fastify.authenticate],
+        schema: {
+            params: {
+                postId: { type: "string" },
+            },
+            body: {
+                type: "object",
+                required: ["content"],
+                properties: {
+                    content: { type: "string" },
+                },
+            },
+        },
+    });
+
+    fastify.route({
+        method: "DELETE",
+        url: "/comments/:commentId/delete",
+        handler: deleteComment,
+        preHandler: [fastify.authenticate],
+        schema: {
+            params: {
+                commentId: { type: "string" },
+            },
         },
     });
 };

@@ -1,4 +1,5 @@
 import { Static, Type } from "@sinclair/typebox";
+import { FileBody } from "./posts.schema";
 
 export const LoginBody = Type.Object({
     username: Type.String(),
@@ -18,7 +19,7 @@ export const SignupBody = Type.Object({
     child_last_name: Type.String(),
     child_date_of_birth: Type.String({ format: "date" }),
     child_class: Type.String(),
-    proof_of_enrollment: Type.String(),
+    proof_of_enrollment: FileBody,
 });
 
 export type SignupBody = Static<typeof SignupBody>;

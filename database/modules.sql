@@ -53,3 +53,14 @@ CREATE TABLE notes (
     created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
     updated_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 )
+
+
+CREATE TABLE questions (
+    id serial NOT NULL PRIMARY KEY,
+    module_id integer NOT NULL REFERENCES modules(id) ON DELETE CASCADE,
+    question text NOT NULL,
+    answer text NOT NULL,
+    answered_at timestamp without time zone NULL,
+    answered_by uuid NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
+)

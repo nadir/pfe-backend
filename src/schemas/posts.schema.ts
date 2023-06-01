@@ -42,3 +42,5 @@ export type LikePostQueryParams = Static<typeof LikePostQueryParams>;
 export const CreatePostBody = Type.Union([PollBody, PublicationBody]);
 
 export type CreatePostBody = Static<typeof CreatePostBody>;
+
+export type FileBody = Static<typeof FileBody>;

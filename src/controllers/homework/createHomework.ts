@@ -38,6 +38,7 @@ export const createHomework: RouteHandler<{
             resumable: false,
             validation: false,
         });
+        await object.makePublic();
 
         fileUrl = object.publicUrl();
     }
@@ -47,8 +48,17 @@ export const createHomework: RouteHandler<{
 
     // create homework
     let homework = await this.pg.query(
-        "INSERT INTO homeworks (title, description, class_id, due_date, file, module_id, author_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
-        [title, description, classId, date, fileUrl, moduleId, userId]
+        "INSERT INTO homeworks (title, description, class_id, due_date, file, module_id, author_id, filename) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *",
+        [
+            title,
+            description,
+            classId,
+            date,
+            fileUrl,
+            moduleId,
+            userId,
+            file?.filename,
+        ]
     );
 
     return reply.code(201).send({

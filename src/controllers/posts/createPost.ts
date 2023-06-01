@@ -61,7 +61,7 @@ export const createPost: RouteHandler<{
         let fileUrl;
 
         if (image) {
-            let fileName = `${userId}/posts/${uuid().substring(
+            let fileName = `/${userId}/posts/${uuid().substring(
                 0,
                 8
             )}.${image.filename.split(".").pop()}`;
@@ -73,12 +73,13 @@ export const createPost: RouteHandler<{
                 validation: false,
             });
 
+            await file.makePublic();
             fileUrl = file.publicUrl();
         }
 
         const post = await this.pg.query(
             "INSERT INTO posts (class_id, author_id, type, title, content, image) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-            [classId, userId, type, title, content, fileUrl]
+            [classId || null, userId, type, title, content, fileUrl]
         );
 
         return reply.code(201).send({

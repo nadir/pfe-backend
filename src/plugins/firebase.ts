@@ -1,5 +1,5 @@
 import { initializeApp, cert } from "firebase-admin/app";
-import { getStorage } from "firebase-admin/storage";
+import { Storage, getStorage } from "firebase-admin/storage";
 import { Messaging, getMessaging } from "firebase-admin/messaging";
 import { Bucket } from "@google-cloud/storage";
 import fp from "fastify-plugin";
@@ -14,10 +14,12 @@ export default fp(async (fastify) => {
 
     const bucket = getStorage(app).bucket();
     const messaging = getMessaging(app);
+    const storage = getStorage(app);
 
     fastify.decorate("firebase", {
         bucket,
         messaging,
+        storage,
         // in the future i will add more services if needed
     });
 });
@@ -27,6 +29,7 @@ declare module "fastify" {
         firebase: {
             bucket: Bucket;
             messaging: Messaging;
+            storage: Storage;
         };
     }
 }

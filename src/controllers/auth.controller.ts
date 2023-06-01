@@ -5,6 +5,8 @@ import { User } from "../models/User";
 import { createStudent } from "../services/createStudent";
 import { parse } from "date-fns";
 
+import { v4 as uuid } from "uuid";
+
 // Login Controller
 
 const login: RouteHandler<{
@@ -65,8 +67,8 @@ const signup: RouteHandler<{ Body: SignupBody }> = async function (
 
     const hashedPassword = await argon2.hash(password);
 
-    const parentResult = await this.pg.query<{ id: number }>(
-        "INSERT INTO users (user_id, username, password, first_name, last_name, email, phone_number, address, user_type) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id",
+    const parentResult = await this.pg.query<{ user_id: string }>(
+        "INSERT INTO users (user_id, username, password, first_name, last_name, email, phone_number, address, user_type) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING user_id",
         [
             userId,
             username.toLocaleLowerCase(),
@@ -79,8 +81,24 @@ const signup: RouteHandler<{ Body: SignupBody }> = async function (
             "parent",
         ]
     );
-    const parent_id = parentResult.rows[0].id;
+    const parent_id = parentResult.rows[0].user_id;
     const child_dob = parse(child_date_of_birth, "yyyy-MM-dd", new Date());
+
+    let fileName = `/${userId}/students/${uuid().substring(
+        0,
+        8
+    )}.${proof_of_enrollment.filename.split(".").pop()}`;
+    const buffer = Buffer.from(proof_of_enrollment.data, "base64");
+    // upload buffer to bucket
+    const file = this.firebase.bucket.file(fileName);
+    await file.save(buffer, {
+        resumable: false,
+        validation: false,
+    });
+
+    await file.makePublic();
+    const fileUrl = file.publicUrl();
+
     try {
         await createStudent(
             {
@@ -88,12 +106,13 @@ const signup: RouteHandler<{ Body: SignupBody }> = async function (
                 lastName: child_last_name,
                 date_of_birth: child_dob,
                 class: child_class,
-                proof_of_enrollment: proof_of_enrollment,
+                proof_of_enrollment: fileUrl,
                 parent_id,
             },
             this.pg
         );
     } catch (error) {
+        console.log(error);
         return reply.code(500).send({
             success: false,
             message: "Error creating child",

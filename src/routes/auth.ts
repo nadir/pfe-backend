@@ -1,29 +1,25 @@
-import { FastifyPluginAsync, FastifyRequest } from "fastify";
+import { FastifyPluginAsync } from "fastify";
 import authController from "../controllers/auth.controller";
 import { LoginBody, SignupBody } from "../schemas/auth.schema";
 import multipart from "@fastify/multipart";
-import { promisify } from "util";
-import { pipeline } from "stream";
 import { v4 as uuidv4 } from "uuid";
-
-const pump = promisify(pipeline);
 
 const auth: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
     fastify.register(multipart, {
         attachFieldsToBody: "keyValues",
         limits: {
-            files: 1,
+            // 50MB
+            fileSize: 50 * 1024 * 1024,
         },
-        onFile: async function onFile(this: FastifyRequest, part) {
-            const userId = this.userId;
-            const filename = `/users/${userId}/${part.filename}`;
-            const fileWriteSream = fastify.firebase.bucket
-                .file(filename)
-                .createWriteStream();
-            await pump(part.file, fileWriteSream);
-
-            //@ts-ignore
-            part.value = filename;
+        async onFile(part) {
+            const buff = await part.toBuffer();
+            const data = buff.toString("base64");
+            // @ts-ignore
+            part.value = {
+                data,
+                filename: part.filename,
+                mimetype: part.mimetype,
+            }; // set `part.value` to specify the request body value
         },
     });
 
